@@ -1,11 +1,14 @@
-import logo from './logo.svg';
-import './App.css';
+import {BrowserRouter as Router, Routes,Route} from "react-router-dom"
+
+import Login from "./pages/user-login/Login.jsx";
 
 function App() {
   return (
-    <div className="bg-black text-white">
-      hello sameer
-    </div>
+    <Router>
+      <Routes>
+        <Route path={'/user-login'} element={<Login/>}/>
+      </Routes>
+    </Router>
   );
 }
 
