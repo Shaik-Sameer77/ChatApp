@@ -12,6 +12,6 @@ router.get("/logout",logOut)
 
 //protected routes
 router.put("/update-profile",authMiddleware,multerMiddleware,updateProfile)
-router.get("/profile",authMiddleware,checkAuthenticated)
+router.get("/check-auth",authMiddleware,checkAuthenticated)
 router.get("/users",authMiddleware,getAllUsers)
 module.exports=router

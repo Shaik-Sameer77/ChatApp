@@ -19,8 +19,9 @@ export const verifyOtp=async(phoneNumber,phoneSuffix,email,otp)=>{
 }
 
 export const updateUserProfile=async(updateData)=>{
+    console.log("updateDate:",updateData)
     try {
-        const response=await axiosInstance.put("/auth/update-profile",{updateData})
+        const response=await axiosInstance.put("/auth/update-profile",updateData)
         return response.data;
     } catch (error) {
         throw error.response? error.response.data:error.message
@@ -49,7 +50,7 @@ export const logoutUser=async()=>{
     }
 }
 
-export const getUsers=async()=>{
+export const getAllUsers=async()=>{
     try {
         const response=await axiosInstance.get("/auth/users")
         return response.data;
