@@ -96,7 +96,7 @@ const initializeSocket = (server) => {
     socket.on("typing_start", ({ conversationId, receiverId }) => {
       if (!userId || !conversationId || !receiverId) return;
 
-      if (typingUsers.has(userId)) typingUsers.set(userId, {});
+      if (!typingUsers.has(userId)) typingUsers.set(userId, {});
 
       const userTyping = typingUsers.get(userId);
 

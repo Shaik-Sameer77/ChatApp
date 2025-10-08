@@ -7,7 +7,20 @@ import HomePage from "./components/HomePage.jsx";
 import UserDetails from "./components/UserDetails.jsx";
 import Status from "./pages/StatusSection/Status.jsx";
 import Setting from "./pages/SettingSection/Setting.jsx";
+import { useEffect } from "react";
+import { disconnectSocket, initializeSocket } from "./services/chat.service.js";
 function App() {
+  const { user } = useUserStore();
+
+  useEffect(() => {
+    if (user?._id) {
+      const socket = initializeSocket();
+    }
+
+    return () => {
+      disconnectSocket();
+    };
+  }, [user]);
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
