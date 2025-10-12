@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useUserStore from "./store/useUserStore.js";
 import { checkUserAuth } from "./services/user.service.js";
-import Loader from "./utils/Loader.js";
+import Loader from "./utils/Loader.jsx";
 
 export const ProtectedRoute = () => {
   const location = useLocation();

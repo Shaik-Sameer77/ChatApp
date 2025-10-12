@@ -106,9 +106,9 @@ export const useChatStore = create((set, get) => ({
           socket.emit("get_user_status", otherUser._id, (status) => {
             set((state) => {
               const newOnlineUsers = new Map(state.onlineUsers);
-              newOnlineUsers.set(state.userId, {
-                isOnline: state.isOnline,
-                lastSeen: state.lastSeen,
+              newOnlineUsers.set(status.userId, {
+                isOnline: status.isOnline,
+                lastSeen: status.lastSeen,
               });
               return { onlineUsers: newOnlineUsers };
             });
@@ -119,6 +119,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   setCurrentUser: (user) => set({ currentUser: user }),
+
   fetchConversations: async () => {
     set({ loading: true, error: null });
     try {
@@ -166,7 +167,81 @@ export const useChatStore = create((set, get) => ({
 
   //   send message in realtime
 
-  sendMessage: async (formData) => {},
+  sendMessage: async (formData) => {
+    const senderId = formData.get("senderId");
+    const receiverId = formData.get("receiverId");
+    const media = formData.get("media");
+    const content = formData.get("content");
+    const messageStatus = formData.get("messageStatus");
+
+    const socket = getSocket();
+
+    const { conversations } = get();
+    let conversationId = null;
+    if (conversations?.data?.length > 0) {
+      const conversation = conversations.data.find(
+        (conv) =>
+          conv.participants.some((p) => p._id === senderId) &&
+          conv.participants.some((p) => p._id === receiverId)
+      );
+      if (conversation) {
+        conversationId = conversation._id;
+        set({ currentConversation: conversationId });
+      }
+    }
+
+    // temp message before actual response
+    const tempId = `temp-${Date.now()}`;
+    const optimistMessage = {
+      _id: tempId,
+      sender: { _id: senderId },
+      receiver: { _id: receiverId },
+      conversation: conversationId,
+      imageOrVideoUrl:
+        media && typeof media !== "string" ? URL.createObjectURL(media) : null,
+      content: content,
+      contentType: media
+        ? media.type.startsWith("image")
+          ? "image"
+          : "video"
+        : "text",
+      createdAt: new Date().toISOString(),
+      messageStatus,
+    };
+
+    set((state) =>( {
+      messages: [...state.messages, optimistMessage]
+    }));
+
+    try {
+      const { data } = await axiosInstance.post(
+        "/chats/send-message",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      const messageData = data.data || data;
+
+      // replace optimistic message with actual message from server
+      set((state) => ({
+        messages: state.messages.map((msg) =>
+          msg._id === tempId ? messageData : msg
+        ),
+      }));
+
+      return messageData;
+    } catch (error) {
+      console.error("send message error", error);
+      set((state) => ({
+        messages: state.messages.map((msg) =>
+          msg._id === tempId ? { ...msg, messageStatus: "failed" } : msg
+        ),
+        error: error?.response?.data?.message || error?.message,
+      }));
+      throw error;
+    }
+  },
 
   // receive message in realtime
   receiveMessage: (message) => {
@@ -181,6 +256,7 @@ export const useChatStore = create((set, get) => ({
       set((state) => ({
         messages: [...state.messages, message],
       }));
+
       //   automatically mark as read
       if (message.receiver?._id === currentUser?._id) {
         get().markMessagesAsRead();
@@ -224,7 +300,7 @@ export const useChatStore = create((set, get) => ({
       .map((msg) => msg._id)
       .filter(Boolean);
 
-    if (unreadIds.length === 0) return;
+    if (!unreadIds.length) return;
 
     try {
       const { data } = await axiosInstance.put(`/chats/messages/read`, {

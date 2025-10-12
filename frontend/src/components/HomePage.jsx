@@ -25,7 +25,7 @@ const HomePage = () => {
     getAllUser();
   }, []);
 
-  console.log(allUsers)
+  // console.log(allUsers)
   return (
     <Layout>
       <motion.div

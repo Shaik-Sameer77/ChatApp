@@ -9,7 +9,7 @@ export const initializeSocket = () => {
   }
   const user = useUserStore.getState().user;
 
-  const BACKEND_URL = process.env.REACT_APP_API_URL;
+  const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
 
   socket = io(BACKEND_URL, {
     withCredentials: true,

@@ -72,7 +72,14 @@ const Layout = ({
       {isMobile && <Sidebar />}
 
       {isThemeDialogOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div
+  className={`fixed inset-0 flex items-center justify-center z-50
+    ${theme === "dark"
+      ? "bg-black/60"
+      : "bg-white/50"
+    }`}
+>
+
           <div
             className={`${
               theme === "dark"

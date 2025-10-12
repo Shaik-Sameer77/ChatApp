@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 
 // routers
 app.use("/api/auth", authRoute);
-app.use("/api/chat", chatRoute);
+app.use("/api/chats", chatRoute);
 app.use("/api/status",statusRoute)
 
 const PORT = process.env.PORT;

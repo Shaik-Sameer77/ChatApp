@@ -125,30 +125,39 @@ const initializeSocket = (server) => {
       });
     });
 
-    socket.on("typing_stop", ({ conversationId, receiverId }) => {
-      if (!userId || !conversationId || !receiverId) return;
+   socket.on("typing_stop", ({ conversationId, receiverId }) => {
+  if (!userId || !conversationId || !receiverId) return;
 
-      if (!typingUsers.has(userId)) {
-        const userTyping = typingUsers.get(userId);
-        userTyping[conversationId] = false;
-      }
+  // Get existing userTyping object or create a new one
+  let userTyping = typingUsers.get(userId);
 
-      if (userTyping[`${conversationId}_timeout`]) {
-        clearTimeout(userTyping[`${conversationId}_timeout`]);
-        delete userTyping[`${conversationId}_timeout`];
-      }
+  if (!userTyping) {
+    userTyping = {};
+    typingUsers.set(userId, userTyping);
+  }
 
-      socket.to(receiverId).emit("user_typing", {
-        userId,
-        conversationId,
-        isTyping: false,
-      });
-    });
+  // Mark typing as false
+  userTyping[conversationId] = false;
+
+  // Clear existing timeout if any
+  if (userTyping[`${conversationId}_timeout`]) {
+    clearTimeout(userTyping[`${conversationId}_timeout`]);
+    delete userTyping[`${conversationId}_timeout`];
+  }
+
+  // Emit to receiver
+  socket.to(receiverId).emit("user_typing", {
+    userId,
+    conversationId,
+    isTyping: false,
+  });
+});
+
 
     // Add or update reaction on message
     socket.on(
       "add_reaction",
-      async ({ messageId, emoji, userId, reactionUserId }) => {
+      async ({ messageId, emoji, userId:reactionUserId }) => {
         try {
           const message = await Message.findById(messageId);
           if (!message) return;

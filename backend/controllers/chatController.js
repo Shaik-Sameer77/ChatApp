@@ -32,9 +32,9 @@ exports.sendMessage = async (req, res) => {
       }
       imageOrVideoUrl = uploadFile?.secure_url;
 
-      if (file.mimeType.startsWith("image")) {
+      if (file.mimetype.startsWith("image")) {
         contentType = "image";
-      } else if (file.mimeType.startsWith("video")) {
+      } else if (file.mimetype.startsWith("video")) {
         contentType = "video";
       } else {
         return response(res, 400, "unsupported file type");
@@ -63,7 +63,7 @@ exports.sendMessage = async (req, res) => {
       conversation.unreadCount += 1;
     }
     await conversation.save();
-    const populatedMessage = await Message.findOne(message?._id)
+    const populatedMessage = await Message.findById(message._id)
       .populate("sender", "username profilePicture")
       .populate("receiver", "username profilePicture");
 
@@ -102,7 +102,7 @@ exports.getConversation = async (req, res) => {
       })
       .sort({ updatedAt: -1 });
 
-    return response(res, 201, "conversation get successful", conversation);
+    return response(res, 200, "conversation get successful", conversation);
   } catch (error) {
     console.error(error);
     return response(res, 500, "Internal Server error");

@@ -15,7 +15,7 @@ import {
   FaUser,
   FaWhatsapp,
 } from "react-icons/fa";
-import Spinner from "../../utils/Spinner.js";
+import Spinner from "../../utils/Spinner.jsx";
 import {
   sendOtp,
   updateUserProfile,
@@ -190,7 +190,7 @@ const Login = () => {
       if (response.status === "success") {
         toast.success("OTP verified successfully");
         const user = response.data?.user;
-        console.log("user",user)
+        console.log("user", user);
         if (user?.username && user?.profilePicture) {
           setUser(user);
           toast.success("Welcome back to Whatsapp");
@@ -217,7 +217,7 @@ const Login = () => {
   };
   const onProfileSubmit = async (data) => {
     try {
-      console.log("data:",data)
+      console.log("data:", data);
       setLoading(true);
       const formData = new FormData();
       formData.append("username", data.username);
@@ -228,21 +228,21 @@ const Login = () => {
         formData.append("profilePicture", selectedAvatar);
       }
 
-     const response = await updateUserProfile(formData); 
-      console.log("updated response",response)
-    if (response?.status === "success") {
-      const user = response.data; 
-      console.log("updated user response",user)
-      if (user) {
-        setUser(user); 
-      }
+      const response = await updateUserProfile(formData);
+      console.log("updated response", response);
+      if (response?.status === "success") {
+        const user = response.data;
+        console.log("updated user response", user);
+        if (user) {
+          setUser(user);
+        }
 
-      toast.success("Profile created successfully! Welcome back to WhatsApp");
-      navigate("/");
-      resetLoginState();
-    } else {
-      toast.error(response?.message || "Failed to update user profile");
-    }
+        toast.success("Profile created successfully! Welcome back to WhatsApp");
+        navigate("/");
+        resetLoginState();
+      } else {
+        toast.error(response?.message || "Failed to update user profile");
+      }
     } catch (error) {
       console.log(error);
       setError(error.message || "Failed to update user profile");
@@ -329,9 +329,9 @@ const Login = () => {
                     type="button"
                     className={`flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center ${
                       theme === "dark"
-                        ? "text-white bg-gray-700 border-gray-600"
-                        : "text-gray-900 bg-gray-100 border-gray-300"
-                    } border rounded-s-lg hover:bg-gray-200 focus:right-4 focus:outline-none focus:ring-gray-100 `}
+                        ? "text-white bg-gray-700 border-gray-600 hover:bg-gray-500"
+                        : "text-gray-900 bg-gray-100 border-gray-300 hover:bg-gray-300 "
+                    } border rounded-s-lg  focus:right-4 focus:outline-none focus:ring-gray-100 `}
                     onClick={() => setShowDropdown(true)}
                   >
                     <span>
@@ -362,7 +362,7 @@ const Login = () => {
                           className={`w-full px-2 py-1 border ${
                             theme === "dark"
                               ? "bg-gray-600 border-gray-500 text-white"
-                              : "bg-white border-gray-300"
+                              : "bg-white border-gray-300 text-black"
                           } rounded-md text-sm focus:outline-none focus:ring-green-500`}
                         />
                       </div>
@@ -373,8 +373,8 @@ const Login = () => {
                             type="button"
                             className={`w-full text-left px-3 py-2 ${
                               theme === "dark"
-                                ? "hover:bg-gray-600"
-                                : "hover:bg-gray-100"
+                                ? "hover:bg-gray-600 text-white"
+                                : "hover:bg-gray-100 text-black"
                             } focus:outline-none focus:bg-gray-100`}
                             onClick={() => {
                               setSelectedCountry(country);
@@ -398,8 +398,8 @@ const Login = () => {
                   className={`w-2/3 px-4 py-2 border ${
                     theme === "dark"
                       ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-x-gray-300"
-                  } rounded-md focus:outline-none focus:ring-green-500 ${
+                      : "bg-white border-gray-300 text-gray-800"
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200 ease-in-out ${
                     loginErrors.phoneNumber ? "border-red-500" : ""
                   }`}
                 />
@@ -421,8 +421,8 @@ const Login = () => {
             <div
               className={`flex items-center border rounded-md px-3 py-2 ${
                 theme === "dark"
-                  ? "bg-gray-700 border-gray-600"
-                  : "bg-white border-gray-300"
+                  ? "bg-gray-700 border-gray-600 text-white"
+                  : "bg-white border-gray-300 text-gray-800"
               }`}
             >
               <FaUser
@@ -481,7 +481,7 @@ const Login = () => {
                     className={`w-12 h-12 text-center border ${
                       theme === "dark"
                         ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-white border-gray-300"
+                        : "bg-white border-gray-300 text-gray-800"
                     } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
                       otpErrors.otp ? "border-red-500" : ""
                     } `}
@@ -505,9 +505,9 @@ const Login = () => {
               onClick={handleBack}
               className={`w-full mt-2 ${
                 theme === "dark"
-                  ? "bg-gray-700 text-gray-300"
-                  : "bg-gray-200 text-gray-700"
-              } py-2 rounded-md hover:bg-gray-300 transition flex items-center justify-center`}
+                  ? "bg-gray-700 text-gray-300 hover:bg-gray-500"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              } py-2 rounded-md  transition flex items-center justify-center`}
             >
               <FaArrowLeft className="mr-2 " />
               Wrong number? Go back

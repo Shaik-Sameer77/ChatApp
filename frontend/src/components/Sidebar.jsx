@@ -24,7 +24,7 @@ const Sidebar = () => {
   useEffect(() => {
     if (location.pathname === "/") {
       setActiveTab("chats");
-    } else if (location.pathname === "status") {
+    } else if (location.pathname === "/status") {
       setActiveTab("status");
     } else if (location.pathname === "/user-profile") {
       setActiveTab("profile");
