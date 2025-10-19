@@ -2,6 +2,7 @@ const { Server } = require("socket.io");
 const User = require("../models/User-model.js");
 const Message = require("../models/Message-model.js");
 const Status = require("../models/Status-model.js");
+const handleVideocallEvent = require("./video-call-events.js");
 
 // Map to store online users ->userId, socketId
 const onlineUsers = new Map();
@@ -29,6 +30,7 @@ const initializeSocket = (server) => {
     socket.on("user_connected", async (connectingUserId) => {
       try {
         userId = connectingUserId;
+        socket.userId = userId;
         onlineUsers.set(userId, socket.id);
         socket.join(userId); //join a personal room for direct emits
 
@@ -125,39 +127,38 @@ const initializeSocket = (server) => {
       });
     });
 
-   socket.on("typing_stop", ({ conversationId, receiverId }) => {
-  if (!userId || !conversationId || !receiverId) return;
+    socket.on("typing_stop", ({ conversationId, receiverId }) => {
+      if (!userId || !conversationId || !receiverId) return;
 
-  // Get existing userTyping object or create a new one
-  let userTyping = typingUsers.get(userId);
+      // Get existing userTyping object or create a new one
+      let userTyping = typingUsers.get(userId);
 
-  if (!userTyping) {
-    userTyping = {};
-    typingUsers.set(userId, userTyping);
-  }
+      if (!userTyping) {
+        userTyping = {};
+        typingUsers.set(userId, userTyping);
+      }
 
-  // Mark typing as false
-  userTyping[conversationId] = false;
+      // Mark typing as false
+      userTyping[conversationId] = false;
 
-  // Clear existing timeout if any
-  if (userTyping[`${conversationId}_timeout`]) {
-    clearTimeout(userTyping[`${conversationId}_timeout`]);
-    delete userTyping[`${conversationId}_timeout`];
-  }
+      // Clear existing timeout if any
+      if (userTyping[`${conversationId}_timeout`]) {
+        clearTimeout(userTyping[`${conversationId}_timeout`]);
+        delete userTyping[`${conversationId}_timeout`];
+      }
 
-  // Emit to receiver
-  socket.to(receiverId).emit("user_typing", {
-    userId,
-    conversationId,
-    isTyping: false,
-  });
-});
-
+      // Emit to receiver
+      socket.to(receiverId).emit("user_typing", {
+        userId,
+        conversationId,
+        isTyping: false,
+      });
+    });
 
     // Add or update reaction on message
     socket.on(
       "add_reaction",
-      async ({ messageId, emoji, userId:reactionUserId }) => {
+      async ({ messageId, emoji, userId: reactionUserId }) => {
         try {
           const message = await Message.findById(messageId);
           if (!message) return;
@@ -182,7 +183,7 @@ const initializeSocket = (server) => {
 
           await message.save();
 
-          const populatedMessage = await Message.findOne(message?._id)
+          const populatedMessage = await Message.findById(message._id)
             .populate("sender", "username profilePicture")
             .populate("receiver", "username profilePicture")
             .populate("reactions.user", "username");
@@ -208,6 +209,9 @@ const initializeSocket = (server) => {
         }
       }
     );
+
+    // handleVideoCall events
+    handleVideocallEvent(socket, io, onlineUsers);
 
     //   handle disconnection and marke user offline
 
@@ -235,7 +239,8 @@ const initializeSocket = (server) => {
           isOnline: false,
           lastSeen: new Date(),
         });
-        socket.leave(userId), console.log(`user ${userId} disconnected`);
+        socket.leave(userId);
+        console.log(`user ${userId} disconnected`);
       } catch (error) {
         console.error("Error handling disconnection", error);
       }

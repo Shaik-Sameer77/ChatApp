@@ -25,7 +25,16 @@ export const useChatStore = create((set, get) => ({
     socket.off("message_deleted");
 
     //listen for incoming messages
-    socket.on("receive_message", (message) => {});
+    // in initsocketListeners function
+    socket.on("receive_message", (message) => {
+      // Add the message only if the user is viewing the relevant conversation
+      if (message.conversation === get().currentConversation) {
+        set((state) => ({ messages: [...state.messages, message] }));
+      }
+
+      // Refresh the conversations list to update the last message in the sidebar
+      get().fetchConversations();
+    });
 
     // confirm message delivery
     socket.on("message_send", (message) => {
@@ -209,8 +218,8 @@ export const useChatStore = create((set, get) => ({
       messageStatus,
     };
 
-    set((state) =>( {
-      messages: [...state.messages, optimistMessage]
+    set((state) => ({
+      messages: [...state.messages, optimistMessage],
     }));
 
     try {
@@ -229,6 +238,14 @@ export const useChatStore = create((set, get) => ({
           msg._id === tempId ? messageData : msg
         ),
       }));
+
+      // 1. If a new conversation was created, update the store's currentConversation
+      if (messageData.conversation) {
+        set({ currentConversation: messageData.conversation });
+      }
+
+      // 2. Refresh the conversation list in the sidebar
+      get().fetchConversations();
 
       return messageData;
     } catch (error) {
@@ -263,25 +280,23 @@ export const useChatStore = create((set, get) => ({
       }
     }
 
-    // update conversation preview and unread count
+    // update conversation preview and lastMessage
     set((state) => {
-      const updateConversations = state.conversations?.data?.map((conv) => {
-        if (conv._id === message.conversation) {
+      const updatedConversations = state.conversations?.data?.map((conv) => {
+        if (conv._id === messageData.conversation) {
           return {
             ...conv,
-            lastMessage: message,
-            unreadCount:
-              message?.receiver?._id === currentUser?._id
-                ? (conv.unreadCount || 0) + 1
-                : conv.unreadCount || 0,
+            lastMessage: messageData,
+            unreadCount: conv.unreadCount || 0, // keep same count for sender
           };
         }
         return conv;
       });
+
       return {
         conversations: {
           ...state.conversations,
-          data: updateConversations,
+          data: updatedConversations,
         },
       };
     });
@@ -289,9 +304,9 @@ export const useChatStore = create((set, get) => ({
 
   //   mark as read
   markMessagesAsRead: async () => {
-    const { messages, currentUser } = get();
+    const { messages, currentUser, currentConversation } = get();
 
-    if (!messages.length || !currentUser) return;
+    if (!messages.length || !currentUser || !currentConversation) return;
     const unreadIds = messages
       .filter(
         (msg) =>
@@ -312,6 +327,16 @@ export const useChatStore = create((set, get) => ({
         messages: state.messages.map((msg) =>
           unreadIds.includes(msg._id) ? { ...msg, messageStatus: "read" } : msg
         ),
+        conversations: {
+            ...state.conversations,
+            data: state.conversations?.data?.map((conv) => {
+                if (conv._id === currentConversation) {
+                    // Reset unread count for the currently viewed conversation
+                    return { ...conv, unreadCount: 0 }; 
+                }
+                return conv;
+            }),
+        }
       }));
 
       const socket = getSocket();

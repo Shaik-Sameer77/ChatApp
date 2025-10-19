@@ -577,7 +577,7 @@ const Login = () => {
                   className={`w-full pl-10 pr-3 py-2 border ${
                     theme === "dark"
                       ? "bg-gray-600 text-white border-gray-600"
-                      : "bg-white border-gray-300"
+                      : "bg-white text-black border-gray-300"
                   } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-lg`}
                 />
                 {profileErrors.username && (

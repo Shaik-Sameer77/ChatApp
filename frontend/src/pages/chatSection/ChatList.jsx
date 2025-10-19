@@ -1,3 +1,5 @@
+// src/pages/chatSection/ChatList.jsx
+
 import React, { useState } from "react";
 import useLayoutStore from "../../store/layOutStore.js";
 import useThemeStore from "../../store/themeStore.js";
@@ -6,19 +8,25 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 import formatTimestamp from "../../utils/formatTime.js";
 
+// ✅ FIX: The component now expects a single 'contacts' prop
 const ChatList = ({ contacts }) => {
   const setSelectedContact = useLayoutStore(
     (state) => state.setSelectedContact
   );
   const selectedContact = useLayoutStore((state) => state.selectedContact);
   const { theme } = useThemeStore();
-  const { user } = useUserStore();
+  const { user: currentUser } = useUserStore();
   const [searchTerms, setSearchTerms] = useState("");
-  const filteredContacts = contacts?.filter((contact) =>
-    contact?.username?.toLowerCase().includes(searchTerms.toLowerCase())
-  );
 
-  console.log("filteredContacts", filteredContacts);
+  const filteredContacts = Array.isArray(contacts)
+  ? contacts.filter(
+      (contact) =>
+        contact?.username &&
+        contact.username.toLowerCase().includes(searchTerms.toLowerCase())
+    )
+  : [];
+
+
   return (
     <div
       className={`w-full border-r h-screen ${
@@ -27,7 +35,8 @@ const ChatList = ({ contacts }) => {
           : "bg-white border-gray-200"
       }`}
     >
-      <div
+      {/* ...Header and Search bar are unchanged... */}
+       <div
         className={`p-4 flex justify-between ${
           theme === "dark" ? "text-white" : "text-gray-800"
         }`}
@@ -57,11 +66,13 @@ const ChatList = ({ contacts }) => {
           />
         </div>
       </div>
+
       <div className="overflow-y-auto h-[calc(100vh-120px)]">
         {filteredContacts.map((contact) => {
           return (
             <motion.div
               key={contact._id}
+              // ✅ FIX: The contact object is now passed directly
               onClick={() => setSelectedContact(contact)}
               className={`p-3 flex items-center cursor-pointer ${
                 theme === "dark"
@@ -74,8 +85,8 @@ const ChatList = ({ contacts }) => {
               } `}
             >
               <img
-                src={contact?.profilePicture}
-                alt={contact?.username}
+                src={contact.profilePicture}
+                alt={contact.username}
                 className="w-12 h-12 rounded-full"
               />
               <div className="ml-3 flex-1">
@@ -85,16 +96,17 @@ const ChatList = ({ contacts }) => {
                       theme === "dark" ? "text-white" : "text-black"
                     }`}
                   >
-                    {contact?.username}
+                    {contact.username}
                   </h2>
-                  {contact?.conversation && (
+                  {/* ✅ FIX: Access conversation data directly from the contact object */}
+                  {contact.conversation?.lastMessage && (
                     <span
                       className={`text-xs ${
                         theme === "dark" ? "text-gray-400" : "text-gray-500"
                       } `}
                     >
                       {formatTimestamp(
-                        contact?.conversation?.lastMessage?.createdAt
+                        contact.conversation.lastMessage.createdAt
                       )}
                     </span>
                   )}
@@ -105,18 +117,18 @@ const ChatList = ({ contacts }) => {
                       theme === "dark" ? "text-gray-400" : "text-gray-500"
                     } truncate`}
                   >
-                    {contact?.conversation?.lastMessage?.content}
+                    {console.log(contact.conversation)}
+                    {contact.conversation?.lastMessage?.content}
                   </p>
-                  {contact?.conversation &&
-                    contact?.conversation?.unreadCount > 0 &&
-                    contact?.conversation?.lastMessage?.receiver ===
-                      user?._id && (
+                  {contact.conversation?.unreadCount > 0 &&
+                    contact.conversation?.lastMessage?.receiver?._id ===
+                      currentUser?._id && (
                       <p
                         className={`text-sm font-semibold w-6 h-6 flex items-center justify-center bg-yellow-500 ${
                           theme === "dark" ? "text-gray-800" : "text-gray-500"
                         } rounded-full`}
                       >
-                        {contact?.conversation?.unreadCount}
+                        {contact.conversation.unreadCount}
                       </p>
                     )}
                 </div>
