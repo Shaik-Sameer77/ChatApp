@@ -132,6 +132,25 @@ exports.viewStatus = async (req, res) => {
   }
 };
 
+exports.getStatusViewers = async (req, res) => {
+  const { statusId } = req.params;
+
+  try {
+    const status = await Status.findById(statusId)
+      .populate("viewers", "username profilePicture");
+
+    if (!status) {
+      return response(res, 404, "Status not found");
+    }
+
+    return response(res, 200, "Viewers fetched successfully", status.viewers);
+  } catch (error) {
+    console.error("Error fetching status viewers:", error);
+    return response(res, 500, "Internal Server Error");
+  }
+};
+
+
 exports.deleteStatus = async (req, res) => {
   const { statusId } = req.params;
   const userId = req.user.userId;
