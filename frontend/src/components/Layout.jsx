@@ -18,7 +18,7 @@ const Layout = ({
     (state) => state.setSelectedContact
   );
   const location = useLocation();
-  const [isMobile, setIsMobile ]  = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const { theme, setTheme } = useThemeStore();
   useEffect(() => {
     const handleResize = () => {
@@ -73,13 +73,9 @@ const Layout = ({
 
       {isThemeDialogOpen && (
         <div
-  className={`fixed inset-0 flex items-center justify-center z-50
-    ${theme === "dark"
-      ? "bg-black/60"
-      : "bg-white/50"
-    }`}
->
-
+          className={`fixed inset-0 flex items-center justify-center z-50
+    ${theme === "dark" ? "bg-black/60" : "bg-white/50"}`}
+        >
           <div
             className={`${
               theme === "dark"
@@ -128,7 +124,7 @@ const Layout = ({
 
       {/* status preview */}
       {isStatusPreviewOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
           {statusPreviewContent}
         </div>
       )}

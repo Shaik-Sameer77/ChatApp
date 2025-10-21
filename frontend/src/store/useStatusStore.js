@@ -35,10 +35,12 @@ const useStatusStore = create((set, get) => ({
     });
 
     // Real-time satus view
-    socket.on("status_viewed", (statusId, viewers) => {
+    socket.on("status_viewed", (data) => {
       set((state) => ({
         statuses: state.statuses.map((status) =>
-          status._id === statusId ? { ...status, viewers } : status
+          status._id === data.statusId
+            ? { ...status, viewers: data.viewers }
+            : status
         ),
       }));
     });
@@ -46,11 +48,10 @@ const useStatusStore = create((set, get) => ({
 
   cleanupSocket: () => {
     const socket = getSocket();
-    if (socket) {
-      socket.off("new_status");
-      socket.off("status_deleted");
-      socket.off("status_viewed");
-    }
+    if (!socket) return;
+    ["new_status", "status_deleted", "status_viewed"].forEach((event) =>
+      socket.off(event)
+    );
   },
 
   //   fetch status
@@ -58,6 +59,7 @@ const useStatusStore = create((set, get) => ({
     set({ loading: true, error: null });
     try {
       const { data } = await axiosInstance.get("/status");
+      // console.log("data",data)
       set({ statuses: data.data || [], loading: false });
     } catch (error) {
       console.error("Error Fetching status Data", error);
@@ -92,7 +94,7 @@ const useStatusStore = create((set, get) => ({
             : [data.data, ...state.statuses],
         }));
       }
-
+      set({ loading: false });
       return data.data;
     } catch (error) {
       console.error("Error creating status", error);
@@ -104,15 +106,19 @@ const useStatusStore = create((set, get) => ({
   //   view status
   viewStatus: async (statusId) => {
     try {
+      set({ loading: true, error: null });
       await axiosInstance.put(`/status/${statusId}/view`);
       set((state) => ({
         statuses: state.statuses.map((status) =>
-          status._id === statusId ? { ...status } : status
+          status._id === statusId
+            ? { ...status, viewed: true } // just mark locally
+            : status
         ),
       }));
+      set({ loading: false });
     } catch (error) {
       console.error("Error viewing status", error);
-      set({ error: error.message });
+      set({ error: error.message, loading: false });
     }
   },
 
@@ -125,6 +131,7 @@ const useStatusStore = create((set, get) => ({
       set((state) => ({
         statuses: state.statuses.filter((s) => s._id !== statusId),
       }));
+      set({ loading: false });
     } catch (error) {
       console.error("Error deleting status", error);
       set({ error: error.message, loading: false });
@@ -136,6 +143,7 @@ const useStatusStore = create((set, get) => ({
     try {
       set({ loading: true, error: null });
       const { data } = await axiosInstance.get(`/status/${statusId}/viewers`);
+      set({ loading: false });
       return data.data;
     } catch (error) {
       console.error("Error getting status viewers", error);
@@ -150,40 +158,54 @@ const useStatusStore = create((set, get) => ({
     const { statuses } = get();
     return statuses.reduce((acc, status) => {
       const statusUserId = status.user?._id;
+      if (!statusUserId) return acc;
+
       if (!acc[statusUserId]) {
         acc[statusUserId] = {
           id: statusUserId,
           name: status?.user?.username,
           avatar: status?.user?.profilePicture,
-          status: [],
+          statuses: [], // ✅ correct property name
         };
       }
 
       acc[statusUserId].statuses.push({
         id: status._id,
-        media: status.content,
+        media: status.media || status.content, // ✅ fallback for text-only statuses
         contentType: status.contentType,
         timeStamp: status.createdAt,
-        viewers: status.viewers,
+        viewers: status.viewers || [],
       });
+
       return acc;
-    },{});
+    }, {});
   },
 
-  getUserStatuses:(userId)=>{
-    const groupedStatus=get().getGroupedStatus();
-    return userId ? groupedStatus[userId] :null;
-
+  getUserStatuses: (userId) => {
+    const groupedStatus = get().getGroupedStatus();
+    return userId ? groupedStatus[userId] : null;
   },
 
-  getOtherStatuses:(userId)=>{
-    const groupedStatus=get().getGroupedStatus();
+  getOtherStatuses: (userId) => {
+    const groupedStatus = get().getGroupedStatus() || {};
     return Object.values(groupedStatus).filter(
-        (contact)=>contact._id !==userId
-    )
-
+      (contact) => contact.id !== userId
+    );
   },
 
-//   clear error
-clearError
+  //   clear error
+  clearError: () => {
+    set({ error: null });
+  },
+
+  // reset
+  reset: () => {
+    set({
+      statuses: [],
+      loading: false,
+      error: null,
+    });
+  },
 }));
+
+export default useStatusStore;
