@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import useUserStore from "../store/useUserStore.js";
+import useStatusStore from "../store/useStatusStore.js";
 
 let socket = null;
 
@@ -22,6 +23,8 @@ export const initializeSocket = () => {
   socket.on("connect", () => {
     console.log("socket connected", socket.id);
     socket.emit("user_connected", user._id);
+    // ✅ Initialize all store socket listeners after successful connect
+    useStatusStore.getState().initializeSocket();
   });
 
   socket.on("connect_error", (error) => {

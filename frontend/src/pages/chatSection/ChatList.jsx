@@ -117,7 +117,6 @@ const ChatList = ({ contacts }) => {
                       theme === "dark" ? "text-gray-400" : "text-gray-500"
                     } truncate`}
                   >
-                    {console.log(contact.conversation)}
                     {contact.conversation?.lastMessage?.content}
                   </p>
                   {contact.conversation?.unreadCount > 0 &&

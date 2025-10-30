@@ -280,6 +280,9 @@ export const useChatStore = create((set, get) => ({
       }
     }
 
+    // Refresh the conversations list
+    get().fetchConversations();
+
     // update conversation preview and lastMessage
     set((state) => {
       const updatedConversations = state.conversations?.data?.map((conv) => {
@@ -322,29 +325,32 @@ export const useChatStore = create((set, get) => ({
         messageIds: unreadIds,
       });
 
-      console.log("messages mark as read", data);
       set((state) => ({
         messages: state.messages.map((msg) =>
           unreadIds.includes(msg._id) ? { ...msg, messageStatus: "read" } : msg
         ),
         conversations: {
-            ...state.conversations,
-            data: state.conversations?.data?.map((conv) => {
-                if (conv._id === currentConversation) {
-                    // Reset unread count for the currently viewed conversation
-                    return { ...conv, unreadCount: 0 }; 
-                }
-                return conv;
-            }),
-        }
+          ...state.conversations,
+          data: state.conversations?.data?.map((conv) => {
+            if (conv._id === currentConversation) {
+              // Reset unread count for the currently viewed conversation
+              return { ...conv, unreadCount: 0 };
+            }
+            return conv;
+          }),
+        },
       }));
 
       const socket = getSocket();
 
-      if (socket) {
+      const senderId = messages.find(
+        (msg) => msg.receiver?._id === currentUser?._id
+      )?.sender?._id;
+
+      if (socket && senderId) {
         socket.emit("message_read", {
           messageIds: unreadIds,
-          senderId: messages[0]?.sender?._id,
+          senderId,
         });
       }
     } catch (error) {

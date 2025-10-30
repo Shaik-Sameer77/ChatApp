@@ -26,6 +26,9 @@ const StatusPreview = ({
 
   const currentStatus = contact?.statuses[currentIndex];
   const isOwnerStatus = contact?.id === currentUser?._id;
+  const currentStatusViewers = currentStatus?.viewers?.filter(
+    (viewer) => viewer._id !== currentUser?._id
+  ); // 👈 exclude the owner
 
   useEffect(() => {
     setProgress(0);
@@ -176,7 +179,7 @@ const StatusPreview = ({
               >
                 <div className="flex items-center space-x-2">
                   <FaEye className="w-4 h-4" />
-                  <span>{currentStatus?.viewers.length -1}</span>
+                  <span>{currentStatusViewers.length}</span>
                 </div>
                 <FaChevronDown
                   className={`h-4 w-4 transition-transform ${
@@ -196,23 +199,21 @@ const StatusPreview = ({
                       <p className="text-white text-center ">Loading Viewers</p>
                     ) : currentStatus.viewers.length > 0 ? (
                       <div className="space-y-2">
-                        {currentStatus?.viewers
-                          ?.filter((viewer) => viewer._id !== currentUser?._id) // 👈 exclude the owner
-                          .map((viewer) => (
-                            <div
-                              key={viewer?._id}
-                              className="flex items-center space-x-3 "
-                            >
-                              <img
-                                src={viewer.profilePicture}
-                                alt={viewer.username}
-                                className="h-8 w-8 rounded-full object-cover"
-                              />
-                              <span className="text-white">
-                                {viewer.username}
-                              </span>
-                            </div>
-                          ))}
+                        {currentStatusViewers.map((viewer) => (
+                          <div
+                            key={viewer?._id}
+                            className="flex items-center space-x-3 "
+                          >
+                            <img
+                              src={viewer.profilePicture}
+                              alt={viewer.username}
+                              className="h-8 w-8 rounded-full object-cover"
+                            />
+                            <span className="text-white">
+                              {viewer.username}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <p className="text-white text-center"> No viewers Yet</p>
