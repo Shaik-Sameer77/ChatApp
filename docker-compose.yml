@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    container_name: whatsapp-backend
+    restart: always
+    ports:
+      - "8000:8000" # HostPort:ContainerPort
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/uploads:/app/uploads # optional if you store files locally
+    networks:
+      - whatsapp-net
+
+networks:
+  whatsapp-net:
+    driver: bridge
