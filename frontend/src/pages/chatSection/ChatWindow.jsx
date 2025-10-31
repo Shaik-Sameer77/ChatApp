@@ -16,7 +16,7 @@ import {
   FaTimes,
   FaVideo,
 } from "react-icons/fa";
-import VideoCallManager from "../videoCall/videoCallManager.jsx";
+import VideoCallManager from "../videoCall/VideoCallManager.jsx";
 import MessageBubble from "./MessageBubble.jsx";
 import EmojiPicker, { Emoji } from "emoji-picker-react";
 import { getSocket } from "../../services/chat.service.js";
