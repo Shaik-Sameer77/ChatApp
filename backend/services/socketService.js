@@ -13,7 +13,10 @@ const typingUsers = new Map();
 const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL,
+      origin: [
+        "https://whatsapp-nine-ruby.vercel.app", // your Vercel frontend
+        "https://unjeered-lymphangial-nova.ngrok-free.dev", // your ngrok backend (for debugging)
+      ],
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     },

@@ -18,7 +18,10 @@ const app = express();
 
 // CORS
 const corsOption = {
-  origin: process.env.FRONTEND_URL,
+  origin: [
+    "https://whatsapp-nine-ruby.vercel.app", // your Vercel frontend
+    "https://unjeered-lymphangial-nova.ngrok-free.dev", // your ngrok backend (for debugging)
+  ],
   credentials: true,
 };
 app.use(cors(corsOption));
