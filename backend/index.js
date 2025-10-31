@@ -17,14 +17,14 @@ ConnectDB();
 const app = express();
 
 // CORS
-const corsOption = {
-  origin: [
-    "https://whatsapp-nine-ruby.vercel.app", // your Vercel frontend
-    "https://unjeered-lymphangial-nova.ngrok-free.dev", // your ngrok backend (for debugging)
-  ],
+const corsOptions = {
+  origin: "https://whatsapp-nine-ruby.vercel.app",  // your frontend domain
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
-app.use(cors(corsOption));
+
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json()); //parse body data

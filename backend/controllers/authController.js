@@ -76,7 +76,7 @@ const verifyOtp = async (req, res) => {
         return response(res, 400, "Phone number and phone suffix are required");
       }
       const fullPhoneNumber = `${phoneSuffix}${phoneNumber}`;
-      user = await User.findOne({ phoneNumber, phoneSuffix  });
+      user = await User.findOne({ phoneNumber, phoneSuffix });
       if (!user) {
         return response(res, 404, "User not found");
       }
@@ -93,6 +93,8 @@ const verifyOtp = async (req, res) => {
     const token = generateToken(user?._id);
     res.cookie("auth_token", token, {
       httpOnly: true,
+      secure: true, // ✅ Required when using HTTPS (ngrok/vercel)
+      sameSite: "none", // ✅ Required for cross-origin cookie sharing
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     return response(res, 200, "Otp Verified sucessfully", { token, user });
@@ -131,68 +133,79 @@ const updateProfile = async (req, res) => {
 };
 
 // checkAuthenticated
-const checkAuthenticated=async(req,res)=>{
+const checkAuthenticated = async (req, res) => {
   try {
-    const userId=req.user.userId;
-    if(!userId){
-      return response(res,404,"unauthorization ! please login before access our app")
+    const userId = req.user.userId;
+    if (!userId) {
+      return response(
+        res,
+        404,
+        "unauthorization ! please login before access our app"
+      );
     }
-    const user= await User.findById(userId);
-    if(!user){
-      return response(res,404,"User not found")
+    const user = await User.findById(userId);
+    if (!user) {
+      return response(res, 404, "User not found");
     }
-    return response(res,200,"user retrived and allow to use whatsapp",user)
-  } catch (error) {
-     console.error(error);
-    return response(res, 500, "Internal Server error");
-  }
-}
-
-
-// logout 
-
-const logOut =(req,res)=>{
-  try {
-    res.cookie("auth_token","",{expires:new Date(0)});
-    return response(res,200,"user logged out successfully")
+    return response(res, 200, "user retrived and allow to use whatsapp", user);
   } catch (error) {
     console.error(error);
     return response(res, 500, "Internal Server error");
   }
-}
+};
+
+// logout
+
+const logOut = (req, res) => {
+  try {
+    res.cookie("auth_token", "", { expires: new Date(0) });
+    return response(res, 200, "user logged out successfully");
+  } catch (error) {
+    console.error(error);
+    return response(res, 500, "Internal Server error");
+  }
+};
 
 // getAllUsers
 
-const getAllUsers=async(req,res)=>{
-  const loggedInUser=req.user.userId;
+const getAllUsers = async (req, res) => {
+  const loggedInUser = req.user.userId;
   try {
-    const users=await User.find({_id:{$ne:loggedInUser}}).select(
-      "username profilePicture lastSeen isOnline about phoneNumber phoneSuffix"
-    ).lean();
+    const users = await User.find({ _id: { $ne: loggedInUser } })
+      .select(
+        "username profilePicture lastSeen isOnline about phoneNumber phoneSuffix"
+      )
+      .lean();
 
-    const usersWithConversation=await Promise.all(
-      users.map(async(user)=>{
+    const usersWithConversation = await Promise.all(
+      users.map(async (user) => {
         const conversation = await Conversation.findOne({
-          participants:{$all:[loggedInUser,user?._id]}
-        }).populate({
-          path:"lastMessage",
-          select:"content createdAt sender receiver"
-        }).lean();
+          participants: { $all: [loggedInUser, user?._id] },
+        })
+          .populate({
+            path: "lastMessage",
+            select: "content createdAt sender receiver",
+          })
+          .lean();
 
         return {
-          ...user,conversation:conversation || null
-        }
+          ...user,
+          conversation: conversation || null,
+        };
       })
-    )
+    );
 
-    return response(res,200,"users retrived successfully",usersWithConversation)
+    return response(
+      res,
+      200,
+      "users retrived successfully",
+      usersWithConversation
+    );
   } catch (error) {
-     console.error(error);
+    console.error(error);
     return response(res, 500, "Internal Server error");
   }
-}
-
-
+};
 
 module.exports = {
   sendOtp,
@@ -200,5 +213,5 @@ module.exports = {
   updateProfile,
   logOut,
   checkAuthenticated,
-  getAllUsers
+  getAllUsers,
 };
