@@ -93,8 +93,6 @@ const verifyOtp = async (req, res) => {
     const token = generateToken(user?._id);
     res.cookie("auth_token", token, {
       httpOnly: true,
-      secure: true, // ✅ Required when using HTTPS (ngrok/vercel)
-      sameSite: "none", // ✅ Required for cross-origin cookie sharing
       maxAge: 1000 * 60 * 60 * 24 * 365,
     });
     return response(res, 200, "Otp Verified sucessfully", { token, user });

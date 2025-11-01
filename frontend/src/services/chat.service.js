@@ -4,6 +4,9 @@ import useStatusStore from "../store/useStatusStore.js";
 
 let socket = null;
 
+const token = localStorage.getItem("auth_token")
+if (!token) console.error("No auth token found!");
+
 export const initializeSocket = () => {
   if (socket) {
     return socket;
@@ -13,7 +16,8 @@ export const initializeSocket = () => {
   const BACKEND_URL = import.meta.env.VITE_SERVER_URL;
 
   socket = io(BACKEND_URL, {
-    withCredentials: true,
+    auth:{token},
+    // withCredentials: true,
     transports: ["websocket", "polling"],
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,

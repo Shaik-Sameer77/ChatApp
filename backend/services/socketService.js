@@ -3,6 +3,8 @@ const User = require("../models/User-model.js");
 const Message = require("../models/Message-model.js");
 const Status = require("../models/Status-model.js");
 const handleVideocallEvent = require("./video-call-events.js");
+const Conversation = require("../models/Conversation-model.js");
+const socketMiddleware = require("../middleware/socketMiddleware.js");
 
 // Map to store online users ->userId, socketId
 const onlineUsers = new Map();
@@ -13,16 +15,17 @@ const typingUsers = new Map();
 const initializeSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: [
-        "https://whatsapp-nine-ruby.vercel.app", // your Vercel frontend
-        "https://unjeered-lymphangial-nova.ngrok-free.dev", // your ngrok backend (for debugging)
-      ],
+      origin: [process.env.FRONTEND_URL],
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization"],
     },
     pingTimeout: 60000, //DISCONNECT inactive users sockets after 60s
   });
+
+  // middleware
+  io.use(socketMiddleware)
+
   // when a new socket connection is established
 
   io.on("connection", (socket) => {
@@ -80,10 +83,26 @@ const initializeSocket = (server) => {
 
     socket.on("message_read", async ({ messageIds, senderId }) => {
       try {
+        if (!messageIds?.length) return;
+
+        // Get the first message to find its conversation
+        const sampleMessage = await Message.findById(messageIds[0]);
+        if (!sampleMessage) return;
+
+        const conversationId = sampleMessage.conversation; // ✅ this is already an ObjectId
         await Message.updateMany(
           { _id: { $in: messageIds } },
           { $set: { messageStatus: "read" } }
         );
+
+        // ✅ Reset unread count only if the receiver is the one reading
+        const conversation = await Conversation.findById(conversationId);
+        if (conversation) {
+          await Conversation.findByIdAndUpdate(conversationId, {
+            $set: { unreadCount: 0 },
+          });
+        }
+
         const senderSocketId = onlineUsers.get(senderId);
         if (senderSocketId) {
           messageIds.forEach((messageId) => {

@@ -16,6 +16,7 @@ const useStatusStore = create((set, get) => ({
   //   Initialize the socket listeners
   initializeSocket: () => {
     const socket = getSocket();
+    console.log("socket in status",socket.id)
     if (!socket) return;
 
     // Real-time satus events

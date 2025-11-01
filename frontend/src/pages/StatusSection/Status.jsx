@@ -48,6 +48,7 @@ const Status = () => {
   const otherStatuses = getOtherStatuses(user?._id);
   useEffect(() => {
     fetchStatuses();
+    initializeSocket();
     return () => {
       cleanupSocket();
     };
