@@ -122,13 +122,21 @@ Your frontend should now run on 👉 **[http://localhost:5173](http://localhost:
 ## 🔌 Core Features
 
 ✅ **OTP Login via Twilio (Phone or Email)**
+
 ✅ **JWT-based Authentication (stored in HTTP-only cookies)**
+
 ✅ **Real-time Chat using Socket.IO**
+
 ✅ **User Online/Offline Status Tracking**
+
 ✅ **Status Uploads (like WhatsApp)**
+
 ✅ **Profile Update with Cloudinary Image Uploads**
+
 ✅ **Last Seen and Typing Indicators**
+
 ✅ **Logout & Authentication Check APIs**
+
 
 ---
 
@@ -174,4 +182,5 @@ Full Stack MERN Developer | Real-time App Specialist
 ## 🧾 License
 
 This project is licensed under the **MIT License** — feel free to use and modify it for learning or development.
+
 
