@@ -1,4 +1,4 @@
-```
+
 # 💬 WhatsApp Clone (MERN + Socket.IO + Twilio + Cloudinary)
 
 A real-time chat and status sharing web application built using the **MERN stack** with **Socket.IO** for live communication, **Twilio** for OTP authentication, and **Cloudinary** for media uploads.
@@ -34,49 +34,13 @@ A real-time chat and status sharing web application built using the **MERN stack
 
 ---
 
-## ⚙️ Folder Structure
-
-```
-
-Whatsapp/
-├─ backend/
-│  ├─ index.js
-│  ├─ .env
-│  ├─ package.json
-│  ├─ config/
-│  ├─ controllers/
-│  ├─ models/
-│  ├─ services/
-│  ├─ routes/
-│  ├─ middlewares/
-│  ├─ utils/
-│  └─ uploads/
-│
-└─ frontend/
-├─ src/
-│  ├─ components/
-│  ├─ hooks/
-│  ├─ pages/
-│  ├─ services/
-│  ├─ store/
-│  ├─ utils/
-│  └─ App.jsx
-├─ .env
-├─ vite.config.js
-├─ package.json
-└─ index.html
-
-````
-
----
-
 ## 🛠️ Local Setup Guide
 
 Follow these steps to run the app locally.
 
 ### 1️⃣ Clone the repository
 ```
-git clone https://github.com/yourusername/whatsapp-clone.git
+git clone https://github.com/Shaik-Sameer77/ChatApp.git
 cd ChatApp
 ````
 
@@ -210,3 +174,4 @@ Full Stack MERN Developer | Real-time App Specialist
 ## 🧾 License
 
 This project is licensed under the **MIT License** — feel free to use and modify it for learning or development.
+
