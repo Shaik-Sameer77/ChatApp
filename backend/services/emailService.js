@@ -12,6 +12,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "Loaded" : "Missing");
+
+
 transporter.verify((error, success) => {
   if (error) {
     console.error("Gmail services connection failed");
