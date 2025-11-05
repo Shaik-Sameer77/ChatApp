@@ -8,24 +8,22 @@ console.log("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "Loaded" : "Missing"
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587, // use TLS port
+  secure: false, // true for 465, false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
 });
 
-
-
-
 transporter.verify((error, success) => {
   if (error) {
-    console.error("Gmail services connection failed");
+    console.error("Gmail services connection failed:", error);
   } else {
     console.log("Gmail Configured properly and ready to send email");
   }
 });
+
 
 const sendOtpToEmail = async (email, otp) => {
   const html = `
