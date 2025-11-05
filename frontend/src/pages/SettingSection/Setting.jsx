@@ -31,6 +31,7 @@ const {cleanup}=useChatStore()
   const handleLogout = async () => {
     try {
       await logoutUser();
+      localStorage.removeItem("auth_token");
       clearUser();
       cleanup();
       useLayoutStore.getState().setSelectedContact(null);
