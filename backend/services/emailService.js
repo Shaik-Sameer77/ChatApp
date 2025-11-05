@@ -2,6 +2,10 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv")
 dotenv.config()
 
+
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "Loaded" : "Missing");
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
@@ -12,8 +16,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("EMAIL_PASSWORD:", process.env.EMAIL_PASSWORD ? "Loaded" : "Missing");
+
 
 
 transporter.verify((error, success) => {
