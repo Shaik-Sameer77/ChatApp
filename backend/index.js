@@ -49,6 +49,6 @@ app.use("/api/status",statusRoute)
 
 const PORT = process.env.PORT;
 
-server.listen(PORT, () => {
-  console.log(`server running at port ${PORT}`);
-});
+// server.listen(PORT, () => {
+//   console.log(`server running at port ${PORT}`);
+// });
