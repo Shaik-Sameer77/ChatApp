@@ -7,8 +7,8 @@ A real-time chat and status sharing web application built using the **MERN stack
 
 ## 🚀 Live Demo
 
-- **Frontend (Vercel):** [https://chat-app-orcin-three-81.vercel.app](https://chat-app-orcin-three-81.vercel.app)  
-- **Backend (Render):** [https://chatapp-f244.onrender.com](https://chatapp-f244.onrender.com)
+- **Frontend (Vercel):** [https://chat-app-orcin-three-81.vercel.app](https://chat-app-orcin-three-81.vercel.app/)  
+- **Backend (Vercel):** [https://chat-app-vwp6.vercel.app](https://chat-app-vwp6.vercel.app)
 
 ---
 
@@ -182,5 +182,6 @@ Full Stack MERN Developer | Real-time App Specialist
 ## 🧾 License
 
 This project is licensed under the **MIT License** — feel free to use and modify it for learning or development.
+
 
 
